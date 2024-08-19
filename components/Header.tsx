@@ -13,8 +13,14 @@ export default function Header() {
 
   const toggleLanguage = () => {
     const nextLocale = isKorean ? "en" : "ko";
-    const nextPathname = `/${nextLocale}${pathname.replace(/^\/(ko|en)/, "")}`;
-    router.push(nextPathname);
+    
+    // Ensure pathname is not null before proceeding
+    if (pathname) {
+      const nextPathname = `/${nextLocale}${pathname.replace(/^\/(ko|en)/, "")}`;
+      router.push(nextPathname);
+    } else {
+      console.error("Pathname is null, unable to change language.");
+    }
   };
 
   return (
