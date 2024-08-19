@@ -4,19 +4,18 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
 import { UrlBuilder } from "@bytescale/sdk";
-import { UploadWidgetConfig } from "@bytescale/upload-widget";
+import Footer from "../../../components/Footer";  // Correct path
+import Header from "../../../components/Header";  // Correct path
+import LoadingDots from "../../../components/LoadingDots";  // Correct path
+import ResizablePanel from "../../../components/ResizablePanel";  // Correct path
+import Toggle from "../../../components/Toggle";  // Correct path
+import appendNewToName from "../../../utils/appendNewToName";  // Correct path
+import downloadPhoto from "../../../utils/downloadPhoto";  // Correct path
+import { CompareSlider } from "../../../components/CompareSlider";  // Correct path
 import { UploadDropzone } from "@bytescale/upload-widget-react";
-import Footer from "../../components/Footer";
-import Header from "../../components/Header";
-import LoadingDots from "../../components/LoadingDots";
-import ResizablePanel from "../../components/ResizablePanel";
-import Toggle from "../../components/Toggle";
-import appendNewToName from "../../utils/appendNewToName";
-import downloadPhoto from "../../utils/downloadPhoto";
-import { CompareSlider } from "../../components/CompareSlider";
 
 
-const options: UploadWidgetConfig = {
+const options = {
   apiKey: !!process.env.NEXT_PUBLIC_UPLOAD_API_KEY
     ? process.env.NEXT_PUBLIC_UPLOAD_API_KEY
     : "free",
@@ -39,7 +38,6 @@ const options: UploadWidgetConfig = {
     },
   },
 };
-
 export default function DreamPage() {
   const [originalPhoto, setOriginalPhoto] = useState<string | null>(null);
   const [restoredImage, setRestoredImage] = useState<string | null>(null);

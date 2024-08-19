@@ -34,9 +34,10 @@ export async function POST(request: Request) {
     }
   }
 
-  const { imageUrl, theme, room } = await request.json();
+  // Destructure and extract the new parameters from the request body
+  const { imageUrl, prompt, prompt_strength, guidance_scale } = await request.json();
 
-  // POST request to Replicate to start the image restoration generation process
+  // POST request to Replicate to start the image generation process
   let startResponse = await fetch("https://api.replicate.com/v1/predictions", {
     method: "POST",
     headers: {
@@ -44,18 +45,13 @@ export async function POST(request: Request) {
       Authorization: "Token " + process.env.REPLICATE_API_KEY,
     },
     body: JSON.stringify({
-      version:
-        "854e8727697a057c525cdb45ab037f64ecca770a1769cc52287c2e56472a247b",
+      version: "76604baddc85b1b4616e1c6475eca080da339c8875bd4996705440484a6eac38", // Updated model version
       input: {
         image: imageUrl,
-        prompt:
-          room === "Gaming Room"
-            ? "a room for gaming with gaming computers, gaming consoles, and gaming chairs"
-            : `a ${theme.toLowerCase()} ${room.toLowerCase()}`,
-        a_prompt:
-          "best quality, extremely detailed, photo from Pinterest, interior, cinematic photo, ultra-detailed, ultra-realistic, award-winning",
-        n_prompt:
-          "longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality",
+        prompt: prompt, // Use the user-provided prompt directly
+        negative_prompt: "lowres, watermark, banner, logo, contactinfo, deformed, blurry",
+        prompt_strength: prompt_strength || 0.8, // Default to 0.8 if not provided
+        guidance_scale: guidance_scale || 15,    // Default to 15 if not provided
       },
     }),
   });
@@ -64,10 +60,10 @@ export async function POST(request: Request) {
 
   let endpointUrl = jsonStartResponse.urls.get;
 
-  // GET request to get the status of the image restoration process & return the result when it's ready
+  // GET request to get the status of the image generation process & return the result when it's ready
   let restoredImage: string | null = null;
   while (!restoredImage) {
-    // Loop in 1s intervals until the alt text is ready
+    // Loop in 1s intervals until the result is ready
     console.log("polling for result...");
     let finalResponse = await fetch(endpointUrl, {
       method: "GET",
@@ -88,6 +84,6 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json(
-    restoredImage ? restoredImage : "Failed to restore image"
+    restoredImage ? restoredImage : "Failed to generate image"
   );
 }
