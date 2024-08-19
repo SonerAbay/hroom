@@ -4,11 +4,13 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import OpenAI from "openai";
 
+export const maxDuration = 30;
+
 // Create a new ratelimiter, that allows 5 requests per 24 hours
 const ratelimit = redis
   ? new Ratelimit({
       redis: redis,
-      limiter: Ratelimit.fixedWindow(5, "1440 m"),
+      limiter: Ratelimit.fixedWindow(500, "1440 m"),
       analytics: true,
     })
   : undefined;
