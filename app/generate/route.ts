@@ -110,7 +110,7 @@ export async function POST(request: Request) {
 // rate changed to 40
 // Function to refine the prompt using GPT-4
 async function refinePrompt(userInput: string) {
-  const prompt = `Here is the user prompt for changing the design of an interior: '${userInput}'\n\nRefine this prompt to be more understandable by ControlNet and give some details without being too creative. Do not add extra furniture or windows unless the user asks for it specifically. If the prompt is not in English you need to translate it to English then refine the prompt. The output should include only the image generation prompt as if it will be directly given to the model.`;
+  const prompt = `Here is the user prompt for changing the design of an interior: '${userInput}'\n\nRefine this prompt to be more understandable by ControlNet and give some details without being too creative. Do not add extra furniture or windows unless the user asks for it specifically. If the prompt is not in English you need to translate it to English then add details to the prompt. The output should include only the image generation prompt as if it will be directly given to the model.`;
 
   try {
     const response = await openai.chat.completions.create({
