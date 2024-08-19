@@ -4,14 +4,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
 import { UrlBuilder } from "@bytescale/sdk";
-import Footer from "../../../components/Footer"; // Correct path
-import Header from "../../../components/Header"; // Correct path
-import LoadingDots from "../../../components/LoadingDots"; // Correct path
-import ResizablePanel from "../../../components/ResizablePanel"; // Correct path
-import Toggle from "../../../components/Toggle"; // Correct path
-import appendNewToName from "../../../utils/appendNewToName"; // Correct path
-import downloadPhoto from "../../../utils/downloadPhoto"; // Correct path
-import { CompareSlider } from "../../../components/CompareSlider"; // Correct path
+import Footer from "../../../components/Footer";
+import Header from "../../../components/Header";
+import LoadingDots from "../../../components/LoadingDots";
+import ResizablePanel from "../../../components/ResizablePanel";
+import Toggle from "../../../components/Toggle";
+import appendNewToName from "../../../utils/appendNewToName";
+import downloadPhoto from "../../../utils/downloadPhoto";
+import { CompareSlider } from "../../../components/CompareSlider";
 import { UploadDropzone } from "@bytescale/upload-widget-react";
 
 const options = {
@@ -49,6 +49,7 @@ export default function DreamPage() {
   const [prompt, setPrompt] = useState<string>(""); // Initially empty
   const [promptStrength, setPromptStrength] = useState<number>(0.8);
   const [guidanceScale, setGuidanceScale] = useState<number>(15);
+  const [useAIRefinement, setUseAIRefinement] = useState<boolean>(false); // Checkbox state
 
   const UploadDropZone = () => (
     <UploadDropzone
@@ -76,7 +77,6 @@ export default function DreamPage() {
   );
 
   async function generatePhoto(fileUrl: string) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
     setLoading(true);
     const res = await fetch("/generate", {
       method: "POST",
@@ -85,21 +85,20 @@ export default function DreamPage() {
       },
       body: JSON.stringify({
         imageUrl: fileUrl,
-        prompt: prompt,
+        prompt,
         prompt_strength: promptStrength,
         guidance_scale: guidanceScale,
+        useAIRefinement, // Pass checkbox value to backend
       }),
     });
 
-    let newPhoto = await res.json();
+    const newPhoto = await res.json();
     if (res.status !== 200) {
       setError(newPhoto);
     } else {
       setRestoredImage(newPhoto);
     }
-    setTimeout(() => {
-      setLoading(false);
-    }, 1300);
+    setLoading(false);
   }
 
   return (
@@ -110,21 +109,14 @@ export default function DreamPage() {
           Generate your <span className="text-[#205047]">dream</span> room
         </h1>
         <ResizablePanel>
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             <motion.div className="flex justify-between items-center w-full flex-col mt-4">
               {!restoredImage && (
                 <>
                   <div className="space-y-4 w-full max-w-sm">
                     <div className="flex mt-3 items-center space-x-3">
-                      <Image
-                        src="/number-1-white.svg"
-                        width={30}
-                        height={30}
-                        alt="1 icon"
-                      />
-                      <p className="text-left font-medium">
-                        Enter your prompt.
-                      </p>
+                      <Image src="/number-1-white.svg" width={30} height={30} alt="1 icon" />
+                      <p className="text-left font-medium">Enter your prompt</p>
                     </div>
                     <input
                       type="text"
@@ -133,24 +125,30 @@ export default function DreamPage() {
                       placeholder="Describe your room..."
                       className="mt-2 p-2 text-black w-full rounded-md"
                     />
+                    {/* AI Refinement Checkbox */}
+                    <div className="flex items-center space-x-2 mt-2">
+                      <input
+                        type="checkbox"
+                        checked={useAIRefinement}
+                        onChange={(e) => setUseAIRefinement(e.target.checked)}
+                        id="ai-refinement"
+                        className="form-checkbox"
+                      />
+                      <label htmlFor="ai-refinement" className="text-gray-300">
+                        Make AI refine my prompt
+                      </label>
+                    </div>
                   </div>
 
                   <div className="space-y-4 w-full max-w-sm mt-10">
                     <div className="flex mt-3 items-center space-x-3">
-                      <Image
-                        src="/number-2-white.svg"
-                        width={30}
-                        height={30}
-                        alt="2 icon"
-                      />
+                      <Image src="/number-2-white.svg" width={30} height={30} alt="2 icon" />
                       <p className="text-left font-medium">Prompt Strength</p>
                     </div>
                     <input
                       type="number"
                       value={promptStrength}
-                      onChange={(e) =>
-                        setPromptStrength(parseFloat(e.target.value))
-                      }
+                      onChange={(e) => setPromptStrength(parseFloat(e.target.value))}
                       min={0}
                       max={1}
                       step={0.1}
@@ -159,20 +157,13 @@ export default function DreamPage() {
                   </div>
                   <div className="space-y-4 w-full max-w-sm mt-10">
                     <div className="flex mt-3 items-center space-x-3">
-                      <Image
-                        src="/number-3-white.svg"
-                        width={30}
-                        height={30}
-                        alt="3 icon"
-                      />
+                      <Image src="/number-3-white.svg" width={30} height={30} alt="3 icon" />
                       <p className="text-left font-medium">Guidance Scale</p>
                     </div>
                     <input
                       type="number"
                       value={guidanceScale}
-                      onChange={(e) =>
-                        setGuidanceScale(parseFloat(e.target.value))
-                      }
+                      onChange={(e) => setGuidanceScale(parseFloat(e.target.value))}
                       min={1}
                       max={50}
                       step={1}
@@ -182,94 +173,48 @@ export default function DreamPage() {
 
                   <div className="mt-4 w-full max-w-sm">
                     <div className="flex mt-6 w-96 items-center space-x-3">
-                      <Image
-                        src="/number-4-white.svg"
-                        width={30}
-                        height={30}
-                        alt="4 icon"
-                      />
-                      <p className="text-left font-medium">
-                        Upload a picture of your room.
-                      </p>
+                      <Image src="/number-4-white.svg" width={30} height={30} alt="4 icon" />
+                      <p className="text-left font-medium">Upload a photo of your room</p>
                     </div>
                   </div>
                 </>
               )}
               {restoredImage && (
                 <div>
-                  Here's your remodeled room based on the prompt:{" "}
-                  <b>{prompt}</b>.
+                  Here's your room based on the prompt: <b>{prompt}</b>.
                 </div>
               )}
-              <div
-                className={`${
-                  restoredLoaded ? "visible mt-6 -ml-8" : "invisible"
-                }`}
-              >
-                <Toggle
-                  className={`${restoredLoaded ? "visible mb-6" : "invisible"}`}
-                  sideBySide={sideBySide}
-                  setSideBySide={(newVal) => setSideBySide(newVal)}
-                />
+              <div className={`${restoredLoaded ? "visible mt-6 -ml-8" : "invisible"}`}>
+                <Toggle sideBySide={sideBySide} setSideBySide={(newVal) => setSideBySide(newVal)} />
               </div>
-              {restoredLoaded && sideBySide && (
-                <CompareSlider
-                  original={originalPhoto!}
-                  restored={restoredImage!}
-                />
-              )}
+              {restoredLoaded && sideBySide && <CompareSlider original={originalPhoto!} restored={restoredImage!} />}
               {!originalPhoto && <UploadDropZone />}
               {originalPhoto && !restoredImage && (
-                <Image
-                  alt="original photo"
-                  src={originalPhoto}
-                  className="rounded-2xl h-96"
-                  width={475}
-                  height={475}
-                />
+                <Image alt="original photo" src={originalPhoto} className="rounded-2xl h-96" width={475} height={475} />
               )}
               {restoredImage && originalPhoto && !sideBySide && (
                 <div className="flex sm:space-x-4 sm:flex-row flex-col">
                   <div>
                     <h2 className="mb-1 font-medium text-lg">Original Room</h2>
-                    <Image
-                      alt="original photo"
-                      src={originalPhoto}
-                      className="rounded-2xl relative w-full h-96"
-                      width={475}
-                      height={475}
-                    />
+                    <Image alt="original photo" src={originalPhoto} className="rounded-2xl relative w-full h-96" width={475} height={475} />
                   </div>
                   <div className="sm:mt-0 mt-8">
                     <h2 className="mb-1 font-medium text-lg">Generated Room</h2>
                     <a href={restoredImage} target="_blank" rel="noreferrer">
-                      <Image
-                        alt="restored photo"
-                        src={restoredImage}
-                        className="rounded-2xl relative sm:mt-0 mt-2 cursor-zoom-in w-full h-96"
-                        width={475}
-                        height={475}
-                        onLoadingComplete={() => setRestoredLoaded(true)}
-                      />
+                      <Image alt="restored photo" src={restoredImage} className="rounded-2xl relative sm:mt-0 mt-2 cursor-zoom-in w-full h-96" width={475} height={475} onLoadingComplete={() => setRestoredLoaded(true)} />
                     </a>
                   </div>
                 </div>
               )}
               {loading && (
-                <button
-                  disabled
-                  className="bg-[#205047] rounded-full text-white font-medium px-4 pt-2 pb-3 mt-8 w-40"
-                >
+                <button disabled className="bg-[#205047] rounded-full text-white font-medium px-4 pt-2 pb-3 mt-8 w-40">
                   <span className="pt-4">
                     <LoadingDots color="white" style="large" />
                   </span>
                 </button>
               )}
               {error && (
-                <div
-                  className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mt-8"
-                  role="alert"
-                >
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mt-8" role="alert">
                   <span className="block sm:inline">{error}</span>
                 </div>
               )}
@@ -290,10 +235,7 @@ export default function DreamPage() {
                 {restoredLoaded && (
                   <button
                     onClick={() => {
-                      downloadPhoto(
-                        restoredImage!,
-                        appendNewToName(photoName!)
-                      );
+                      downloadPhoto(restoredImage!, appendNewToName(photoName!));
                     }}
                     className="bg-white rounded-full text-black border font-medium px-4 py-2 mt-8 hover:bg-gray-100 transition"
                   >

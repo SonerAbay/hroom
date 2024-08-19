@@ -49,6 +49,7 @@ export default function DreamPage() {
   const [prompt, setPrompt] = useState<string>(""); // Initially empty
   const [promptStrength, setPromptStrength] = useState<number>(0.8);
   const [guidanceScale, setGuidanceScale] = useState<number>(15);
+  const [useAIRefinement, setUseAIRefinement] = useState<boolean>(false); // Checkbox state
 
   const UploadDropZone = () => (
     <UploadDropzone
@@ -87,6 +88,7 @@ export default function DreamPage() {
         prompt,
         prompt_strength: promptStrength,
         guidance_scale: guidanceScale,
+        useAIRefinement, // Pass checkbox value to backend
       }),
     });
 
@@ -123,6 +125,19 @@ export default function DreamPage() {
                       placeholder="방을 설명하세요..."
                       className="mt-2 p-2 text-black w-full rounded-md"
                     />
+                    {/* AI Refinement Checkbox */}
+                    <div className="flex items-center space-x-2 mt-2">
+                      <input
+                        type="checkbox"
+                        checked={useAIRefinement}
+                        onChange={(e) => setUseAIRefinement(e.target.checked)}
+                        id="ai-refinement"
+                        className="form-checkbox"
+                      />
+                      <label htmlFor="ai-refinement" className="text-gray-300">
+                      AI가 내 프롬프트를 다듬도록 설정
+                      </label>
+                    </div>
                   </div>
 
                   <div className="space-y-4 w-full max-w-sm mt-10">

@@ -2,6 +2,7 @@ import { Ratelimit } from "@upstash/ratelimit";
 import redis from "../../utils/redis";
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
+import OpenAI from "openai";
 
 // Create a new ratelimiter, that allows 5 requests per 24 hours
 const ratelimit = redis
@@ -11,6 +12,11 @@ const ratelimit = redis
       analytics: true,
     })
   : undefined;
+
+// Initialize OpenAI client with your API key
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export async function POST(request: Request) {
   // Rate Limiter Code
@@ -22,7 +28,7 @@ export async function POST(request: Request) {
 
     if (!result.success) {
       return new Response(
-        "Too many uploads in 1 day. Please try again in a 24 hours.",
+        "Too many uploads in 1 day. Please try again in 24 hours.",
         {
           status: 429,
           headers: {
@@ -34,10 +40,24 @@ export async function POST(request: Request) {
     }
   }
 
-  // Destructure and extract the new parameters from the request body
-  const { imageUrl, prompt, prompt_strength, guidance_scale } = await request.json();
+  // Destructure and extract the parameters from the request body
+  const { imageUrl, prompt, prompt_strength, guidance_scale, useAIRefinement } = await request.json();
 
-  // POST request to Replicate to start the image generation process
+  // Step 1: Conditionally refine the prompt using GPT-4 if the checkbox is selected
+  let finalPrompt = prompt;
+  if (useAIRefinement) {
+    finalPrompt = await refinePrompt(prompt);
+  }
+
+  console.log("Using Prompt: ", finalPrompt); // Debugging: Log the prompt being used in the image generation
+
+  if (!finalPrompt) {
+    return new Response("Error refining the prompt. Please try again.", {
+      status: 500,
+    });
+  }
+
+  // Step 2: Proceed with the image generation process using the (refined or original) prompt
   let startResponse = await fetch("https://api.replicate.com/v1/predictions", {
     method: "POST",
     headers: {
@@ -48,7 +68,7 @@ export async function POST(request: Request) {
       version: "76604baddc85b1b4616e1c6475eca080da339c8875bd4996705440484a6eac38", // Updated model version
       input: {
         image: imageUrl,
-        prompt: prompt, // Use the user-provided prompt directly
+        prompt: finalPrompt, // Use the final prompt (refined or original)
         negative_prompt: "lowres, watermark, banner, logo, contactinfo, deformed, blurry",
         prompt_strength: prompt_strength || 0.8, // Default to 0.8 if not provided
         guidance_scale: guidance_scale || 15,    // Default to 15 if not provided
@@ -60,10 +80,9 @@ export async function POST(request: Request) {
 
   let endpointUrl = jsonStartResponse.urls.get;
 
-  // GET request to get the status of the image generation process & return the result when it's ready
+  // Poll for the result until the image generation is complete
   let restoredImage: string | null = null;
   while (!restoredImage) {
-    // Loop in 1s intervals until the result is ready
     console.log("polling for result...");
     let finalResponse = await fetch(endpointUrl, {
       method: "GET",
@@ -86,4 +105,33 @@ export async function POST(request: Request) {
   return NextResponse.json(
     restoredImage ? restoredImage : "Failed to generate image"
   );
+}
+
+// Function to refine the prompt using GPT-4
+async function refinePrompt(userInput: string) {
+  const prompt = `Here is the user prompt for changing the design of an interior: '${userInput}'\n\nRefine this prompt to be more understandable by ControlNet and give some details without being too creative. Do not add extra furniture or windows unless the user asks for it specifically. If the prompt is not in English you need to translate it to English then refine the prompt. The output should include only the interior design image translation prompt as if it will be directly given to the model.`;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: "You are an interior design prompt refiner." },
+        { role: "user", content: prompt },
+      ],
+      max_tokens: 1000,
+    });
+
+    const choice = response.choices?.[0]?.message?.content?.trim();
+
+    if (choice) {
+      console.log("Refined Prompt: ", choice); // Debugging: Log the refined prompt
+      return choice;
+    } else {
+      console.error("Invalid response structure from OpenAI:", response);
+      return userInput; // Fall back to user input if refinement fails
+    }
+  } catch (error) {
+    console.error("Error calling GPT-4 API:", error);
+    return userInput; // Fall back to user input if an error occurs
+  }
 }
