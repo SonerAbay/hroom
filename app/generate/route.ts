@@ -114,7 +114,7 @@ async function refinePrompt(userInput: string) {
 
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o",
       messages: [
         { role: "system", content: "You are an interior design prompt refiner." },
         { role: "user", content: prompt },
