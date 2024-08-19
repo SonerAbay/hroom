@@ -7,6 +7,7 @@ import Header from "../../components/Header";
 import SquigglyLines from "../../components/SquigglyLines";
 import { usePathname } from "next/navigation";
 
+// byte upload api added
 export default function HomePage() {
   const pathname = usePathname();
   const isKorean = pathname ? pathname.startsWith("/ko") : false;
