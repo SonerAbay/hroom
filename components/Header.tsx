@@ -9,7 +9,7 @@ export default function Header() {
   const pathname = usePathname();
 
   // Extract locale from the pathname (ko or en)
-  const isKorean = pathname.startsWith("/ko");
+  const isKorean = pathname ? pathname.startsWith("/ko") : false;
 
   const toggleLanguage = () => {
     const nextLocale = isKorean ? "en" : "ko";

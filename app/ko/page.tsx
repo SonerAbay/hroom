@@ -9,7 +9,7 @@ import { useRouter, usePathname } from "next/navigation";
 
 export default function HomePage() {
   const pathname = usePathname();
-  const isKorean = pathname.startsWith("/ko");
+  const isKorean = pathname ? pathname.startsWith("/ko") : false;
 
   return (
     <div className="flex max-w-6xl mx-auto flex-col items-center justify-center py-2 min-h-screen">
