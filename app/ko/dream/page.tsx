@@ -23,7 +23,7 @@ const options = {
   editor: { images: { crop: false } },
   styles: {
     colors: {
-      primary: "#2563EB", // Primary buttons & links
+      primary: "#205047", // Updated to greenish color
       error: "#d23f4d", // Error messages
       shade100: "#fff", // Standard text
       shade200: "#fffe", // Secondary button text
@@ -46,7 +46,7 @@ export default function DreamPage() {
   const [sideBySide, setSideBySide] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [photoName, setPhotoName] = useState<string | null>(null);
-  const [prompt, setPrompt] = useState<string>("모던한 거실을 자연광과 미니멀한 가구로 꾸몄습니다.");
+  const [prompt, setPrompt] = useState<string>(""); // Initially empty
   const [promptStrength, setPromptStrength] = useState<number>(0.8);
   const [guidanceScale, setGuidanceScale] = useState<number>(15);
 
@@ -104,7 +104,7 @@ export default function DreamPage() {
       <Header />
       <main className="flex flex-1 w-full flex-col items-center justify-center text-center px-4 mt-4 sm:mb-0 mb-8">
         <h1 className="mx-auto max-w-4xl font-display text-4xl font-bold tracking-normal text-slate-100 sm:text-6xl mb-5">
-          꿈의 방을 <span className="text-blue-600">생성</span>하세요
+          꿈의 방을 <span className="text-[#205047]">생성</span>하세요
         </h1>
         <ResizablePanel>
           <AnimatePresence>
@@ -192,7 +192,7 @@ export default function DreamPage() {
                 </div>
               )}
               {loading && (
-                <button disabled className="bg-blue-500 rounded-full text-white font-medium px-4 pt-2 pb-3 mt-8 w-40">
+                <button disabled className="bg-[#205047] rounded-full text-white font-medium px-4 pt-2 pb-3 mt-8 w-40">
                   <span className="pt-4">
                     <LoadingDots color="white" style="large" />
                   </span>
@@ -212,7 +212,7 @@ export default function DreamPage() {
                       setRestoredLoaded(false);
                       setError(null);
                     }}
-                    className="bg-blue-500 rounded-full text-white font-medium px-4 py-2 mt-8 hover:bg-blue-500/80 transition"
+                    className="bg-[#205047] rounded-full text-white font-medium px-4 py-2 mt-8 hover:bg-[#1a4238] transition"
                   >
                     새 방 생성
                   </button>

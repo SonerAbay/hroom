@@ -4,16 +4,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
 import { UrlBuilder } from "@bytescale/sdk";
-import Footer from "../../../components/Footer";  // Correct path
-import Header from "../../../components/Header";  // Correct path
-import LoadingDots from "../../../components/LoadingDots";  // Correct path
-import ResizablePanel from "../../../components/ResizablePanel";  // Correct path
-import Toggle from "../../../components/Toggle";  // Correct path
-import appendNewToName from "../../../utils/appendNewToName";  // Correct path
-import downloadPhoto from "../../../utils/downloadPhoto";  // Correct path
-import { CompareSlider } from "../../../components/CompareSlider";  // Correct path
+import Footer from "../../../components/Footer"; // Correct path
+import Header from "../../../components/Header"; // Correct path
+import LoadingDots from "../../../components/LoadingDots"; // Correct path
+import ResizablePanel from "../../../components/ResizablePanel"; // Correct path
+import Toggle from "../../../components/Toggle"; // Correct path
+import appendNewToName from "../../../utils/appendNewToName"; // Correct path
+import downloadPhoto from "../../../utils/downloadPhoto"; // Correct path
+import { CompareSlider } from "../../../components/CompareSlider"; // Correct path
 import { UploadDropzone } from "@bytescale/upload-widget-react";
-
 
 const options = {
   apiKey: !!process.env.NEXT_PUBLIC_UPLOAD_API_KEY
@@ -24,7 +23,7 @@ const options = {
   editor: { images: { crop: false } },
   styles: {
     colors: {
-      primary: "#2563EB", // Primary buttons & links
+      primary: "#205047", // Updated to greenish color
       error: "#d23f4d", // Error messages
       shade100: "#fff", // Standard text
       shade200: "#fffe", // Secondary button text
@@ -38,6 +37,7 @@ const options = {
     },
   },
 };
+
 export default function DreamPage() {
   const [originalPhoto, setOriginalPhoto] = useState<string | null>(null);
   const [restoredImage, setRestoredImage] = useState<string | null>(null);
@@ -46,7 +46,7 @@ export default function DreamPage() {
   const [sideBySide, setSideBySide] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [photoName, setPhotoName] = useState<string | null>(null);
-  const [prompt, setPrompt] = useState<string>("A modern living room with natural light and minimalist furniture.");
+  const [prompt, setPrompt] = useState<string>(""); // Initially empty
   const [promptStrength, setPromptStrength] = useState<number>(0.8);
   const [guidanceScale, setGuidanceScale] = useState<number>(15);
 
@@ -107,7 +107,7 @@ export default function DreamPage() {
       <Header />
       <main className="flex flex-1 w-full flex-col items-center justify-center text-center px-4 mt-4 sm:mb-0 mb-8">
         <h1 className="mx-auto max-w-4xl font-display text-4xl font-bold tracking-normal text-slate-100 sm:text-6xl mb-5">
-          Generate your <span className="text-blue-600">dream</span> room
+          Generate your <span className="text-[#205047]">dream</span> room
         </h1>
         <ResizablePanel>
           <AnimatePresence mode="wait">
@@ -148,7 +148,9 @@ export default function DreamPage() {
                     <input
                       type="number"
                       value={promptStrength}
-                      onChange={(e) => setPromptStrength(parseFloat(e.target.value))}
+                      onChange={(e) =>
+                        setPromptStrength(parseFloat(e.target.value))
+                      }
                       min={0}
                       max={1}
                       step={0.1}
@@ -168,7 +170,9 @@ export default function DreamPage() {
                     <input
                       type="number"
                       value={guidanceScale}
-                      onChange={(e) => setGuidanceScale(parseFloat(e.target.value))}
+                      onChange={(e) =>
+                        setGuidanceScale(parseFloat(e.target.value))
+                      }
                       min={1}
                       max={50}
                       step={1}
@@ -254,7 +258,7 @@ export default function DreamPage() {
               {loading && (
                 <button
                   disabled
-                  className="bg-blue-500 rounded-full text-white font-medium px-4 pt-2 pb-3 mt-8 w-40"
+                  className="bg-[#205047] rounded-full text-white font-medium px-4 pt-2 pb-3 mt-8 w-40"
                 >
                   <span className="pt-4">
                     <LoadingDots color="white" style="large" />
@@ -278,7 +282,7 @@ export default function DreamPage() {
                       setRestoredLoaded(false);
                       setError(null);
                     }}
-                    className="bg-blue-500 rounded-full text-white font-medium px-4 py-2 mt-8 hover:bg-blue-500/80 transition"
+                    className="bg-[#205047] rounded-full text-white font-medium px-4 py-2 mt-8 hover:bg-[#1a4238] transition"
                   >
                     Generate New Room
                   </button>

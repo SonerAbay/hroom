@@ -18,17 +18,17 @@ export default function HomePage() {
         
         <h1 className="mx-auto max-w-4xl font-display text-5xl font-bold tracking-normal text-gray-300 sm:text-7xl">
           Generating dream rooms{" "}
-          <span className="relative whitespace-nowrap text-blue-600">
+          <span className="relative whitespace-nowrap text-[#205047]">
             <SquigglyLines />
             <span className="relative">using AI</span>
           </span>{" "}
           for everyone.
         </h1>
         <h2 className="mx-auto mt-12 max-w-xl text-lg sm:text-gray-400 text-gray-500 leading-7">
-          Take a picture of your room and see how your room looks in different themes. 100% free – remodel your room today.
-        </h2>
+  Transform your space into something sleek and modern with an AI tool that perfectly reflects Korea's minimalist design.
+    </h2>
         <Link
-          className="bg-blue-600 rounded-xl text-white font-medium px-4 py-3 sm:mt-10 mt-8 hover:bg-blue-500 transition"
+          className="bg-[#205047] rounded-xl text-white font-medium px-4 py-3 sm:mt-10 mt-8 hover:bg-[#1a4238] transition"
           href={`${isKorean ? "/ko/dream" : "/en/dream"}`}
         >
           Generate your dream room
