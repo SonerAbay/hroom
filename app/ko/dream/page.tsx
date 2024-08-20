@@ -49,7 +49,8 @@ export default function DreamPage() {
   const [prompt, setPrompt] = useState<string>(""); // Initially empty
   const [promptStrength, setPromptStrength] = useState<number>(0.8);
   const [guidanceScale, setGuidanceScale] = useState<number>(15);
-  const [useAIRefinement, setUseAIRefinement] = useState<boolean>(false); // Checkbox state
+  const [useAIRefinement, setUseAIRefinement] = useState<boolean>(true); // Default to checked
+ // Checkbox state
 
   const UploadDropZone = () => (
     <UploadDropzone
